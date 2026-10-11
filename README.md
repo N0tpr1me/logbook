@@ -20,10 +20,17 @@ npm run dev                  # http://localhost:5173
 
 ```bash
 npm run build:pages   # renders the page images for the 3D book (needs the dev server or starts one)
-npm run build         # type-check, bundle, prerender the paper version to static HTML
+npm run build         # type-check, bundle, prerender the paper version to static HTML and sitemap.xml
 npm run test          # unit tests (vitest)
-npm run test:e2e      # Playwright
+npm run test:e2e      # Playwright: paper version (desktop and iPhone 15), the 3D book in test mode, the version decision
 ```
+
+Re-run `npm run build:pages` after changing anything in `content.ts`, so the
+3D book's pages match the paper version; the images live in
+`public/assets/pages/` and are committed.
+
+Lighthouse on the paper version (mobile, production build): Performance 94,
+Accessibility 100, Best practices 100, SEO 100.
 
 ## Where things are
 
