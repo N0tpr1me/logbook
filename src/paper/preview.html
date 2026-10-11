@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Paper version preview</title>
+    <meta name="description" content="Development harness for the paper version." />
+    <meta property="og:title" content="Paper version preview" />
+    <meta property="og:description" content="Development harness for the paper version." />
+    <style>
+      :root { color-scheme: dark; }
+      html, body { margin: 0; background: #1b1a18; }
+    </style>
+  </head>
+  <body>
+    <!-- Development only: /src/paper/preview.html mounts the paper version on its own,
+         and /src/paper/preview.html?page=/__page/dronemedic/left mounts one print page. -->
+    <div id="root"></div>
+    <script type="module" src="./preview-main.tsx"></script>
+  </body>
+</html>

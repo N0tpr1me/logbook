@@ -1,0 +1,45 @@
+/* Design tokens from the plan's Visual design section. One source for both versions. */
+:root {
+  --desk: #1B1A18;
+  --desk-text: #ECEAE4;
+  --desk-text-quiet: #A3A79F;
+  --cover: #23402F;
+  --foil: #C9B26A;
+  --paper: #E6ECDF;
+  --grid: #BFCDB8;
+  --ink: #1E2633;
+  --ink-quiet: #4E5A57;
+  --highlighter: #F3E25A;
+  --highlighter-pressed: #EBCB2E;
+  --first-aid: #2E7D4F;
+
+  --radius: 6px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --space: 8px;
+
+  --font: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-hand: 'Caveat', 'Bradley Hand', 'Segoe Print', cursive; /* replaced by vector handwriting when it arrives */
+
+  /* Paper version type scale (3D book scale lives in the page renderer). */
+  --fs-title: 28px; --lh-title: 34px;
+  --fs-result: 20px; --lh-result: 26px;
+  --fs-body: 17px; --lh-body: 26px;
+  --fs-caption: 15px; --lh-caption: 22px;
+  --fs-control: 16px; --lh-control: 20px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  --dur-fast: 180ms;
+  --dur-sheet-open: 350ms;
+  --dur-sheet-close: 250ms;
+
+  --target: 44px;
+}
+
+@media (min-width: 1200px) {
+  :root {
+    --fs-title: 34px; --lh-title: 40px;
+    --fs-result: 22px; --lh-result: 28px;
+    --fs-body: 18px; --lh-body: 28px;
+  }
+}

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /__page/
+
+Sitemap: https://zainali.dev/sitemap.xml

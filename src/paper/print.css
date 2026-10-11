@@ -1,0 +1,118 @@
+/* Build-time page routes: one page of the book in a 1448 × 2048 box (A4 portrait).
+   Everything is drawn at twice the paper version's size, so the 2048px render is sharp. */
+
+.print-box {
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  margin: 0;
+}
+
+.print-page {
+  --fs-title: 68px; --lh-title: 80px;
+  --fs-result: 44px; --lh-result: 56px;
+  --fs-body: 36px; --lh-body: 56px;
+  --fs-caption: 30px; --lh-caption: 44px;
+  --fs-control: 30px; --lh-control: 40px;
+  --space: 16px;
+  --radius: 12px;
+  --target: 88px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 116px; /* 8% of the page width */
+  border-radius: 0;
+  box-shadow: none;
+  background-size: 38px 38px;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+
+.print-number,
+.print-foot {
+  position: absolute;
+  font-size: 30px;
+  line-height: 40px;
+  color: var(--ink-quiet);
+  font-variant-numeric: tabular-nums;
+}
+.print-number { top: 56px; font-weight: 500; }
+.print-foot { bottom: 56px; }
+.print-left .print-number,
+.print-left .print-foot { left: 116px; }
+.print-right .print-number,
+.print-right .print-foot { right: 116px; }
+
+.print-running-head { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-quiet); }
+
+.print-page .chapter-story { gap: 24px; margin-top: 40px; }
+.print-page .chapter-result { margin-top: 16px; }
+.print-page .chapter-facts { gap: 16px; padding: 32px; border-width: 2px; }
+.print-page .chapter-links { gap: 16px 40px; }
+.print-page .chapter-links a { padding: 0; }
+.print-page .chapter-media { margin: 0; }
+.print-page .chapter-caption { margin-top: 16px; }
+.print-page .media-frame,
+.print-page .media-placeholder { border-radius: var(--radius); }
+.print-page .media-placeholder { border-width: 2px; }
+.print-page .btn { gap: 16px; padding: 16px 28px; border-width: 3px; }
+.print-page .btn svg,
+.print-page .contact-row dt svg,
+.print-page .pipeline-risk svg { width: 40px; height: 40px; }
+.print-page .pipeline-risk { padding: 4px; border-radius: 8px; }
+.print-page .pipeline-button { padding: 16px 24px; border-width: 3px; }
+.print-page .pipeline-stage + .pipeline-stage::before { width: 4px; height: 32px; }
+.print-page .pipeline-detail { gap: 16px; padding: 32px; border-width: 2px; }
+.print-page .chart-label { font-size: 26px; }
+.print-page .chart-gridline,
+.print-page .chart-zero { stroke-width: 2; }
+.print-page .profit-line { stroke-width: 4; }
+.print-page .legend-swatch { width: 40px; border-top-width: 4px; }
+.print-page .timeline-entry { padding: 16px 0; border-top-width: 2px; }
+.print-page .contents-list li { padding: 24px 0; border-top-width: 2px; }
+.print-page .contents-list a { padding: 8px 0; }
+.print-page .contents-intro { grid-template-columns: 1fr; gap: 48px; }
+.print-page .contents-photo .photo { max-width: 440px; }
+.print-page .photo-placeholder { font-size: 96px; }
+.print-page .contents-belongs-line { font-size: 60px; line-height: 72px; }
+.print-page .contents-email { padding: 0; }
+.print-page .contact-title { font-size: 88px; line-height: 96px; }
+.print-page .contact-rows { gap: 32px; margin-top: 48px; }
+.print-page .contact-row dt { gap: 16px; }
+.print-page .contact-row dd { gap: 16px 32px; margin-top: 8px; }
+.print-page .contact-value { padding: 0; }
+.print-page .contact-actions { gap: 16px; margin-top: 48px; }
+
+.print-cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 64px;
+  padding: 116px;
+  background: var(--cover);
+  color: var(--foil);
+  text-align: center;
+}
+.print-cover-name {
+  font-size: 128px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.print-cover-label {
+  display: grid;
+  gap: 8px;
+  padding: 40px 56px;
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 36px;
+  line-height: 56px;
+  font-weight: 500;
+}
+.print-back { gap: 48px; align-items: flex-start; text-align: left; color: var(--desk-text); }
+.print-back-closing { font-size: 60px; line-height: 72px; font-weight: 600; color: var(--foil); }
+.print-back-built { max-width: 62ch; font-size: 36px; line-height: 56px; }
+.print-back-label { font-weight: 500; }
+.print-missing { display: grid; place-items: center; }

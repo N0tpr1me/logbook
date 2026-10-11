@@ -1,0 +1,186 @@
+{
+  "speedMps": 15.0,
+  "speedSource": "DroneMedic config.py:35 DRONE_CRUISE_SPEED_MS = 15.0 (also PHYSICS_CRUISE_SPEED_MS config.py:53)",
+  "depot": {
+    "name": "Depot",
+    "lat": 51.5074,
+    "lon": -0.1278
+  },
+  "hospitals": [
+    {
+      "id": "royal-london",
+      "name": "Royal London Hospital",
+      "lat": 51.5185,
+      "lon": -0.059,
+      "route": [
+        [
+          51.5074,
+          -0.1278
+        ],
+        [
+          51.5185,
+          -0.059
+        ]
+      ],
+      "distanceKm": 4.918,
+      "etaMin": 5.46,
+      "payload": "O-negative blood (2 units)",
+      "payloadSource": "web/src/data/demo-scenario.ts:19"
+    },
+    {
+      "id": "homerton",
+      "name": "Homerton Hospital",
+      "lat": 51.5468,
+      "lon": -0.0456,
+      "route": [
+        [
+          51.5074,
+          -0.1278
+        ],
+        [
+          51.5468,
+          -0.0456
+        ]
+      ],
+      "distanceKm": 7.178,
+      "etaMin": 7.98,
+      "payload": "Surgical kit",
+      "payloadSource": "web/src/data/demo-scenario.ts:179"
+    },
+    {
+      "id": "newham-general",
+      "name": "Newham General Hospital",
+      "lat": 51.5155,
+      "lon": 0.0285,
+      "route": [
+        [
+          51.5074,
+          -0.1278
+        ],
+        [
+          51.5155,
+          0.0285
+        ]
+      ],
+      "distanceKm": 10.854,
+      "etaMin": 12.06,
+      "payload": "Vaccine kit",
+      "payloadSource": "web/src/data/demo-scenario.ts:231,275"
+    },
+    {
+      "id": "whipps-cross",
+      "name": "Whipps Cross Hospital",
+      "lat": 51.569,
+      "lon": 0.0066,
+      "route": [
+        [
+          51.5074,
+          -0.1278
+        ],
+        [
+          51.569,
+          0.0066
+        ]
+      ],
+      "distanceKm": 11.547,
+      "etaMin": 12.83,
+      "payload": "Defibrillator",
+      "payloadSource": "inferred: 'Cardiac unit' config.py:122 + SUPPLY_WEIGHTS config.py:62"
+    },
+    {
+      "id": "clinic-a",
+      "name": "Clinic A (general medical clinic)",
+      "lat": 51.5124,
+      "lon": -0.12,
+      "route": [
+        [
+          51.5074,
+          -0.1278
+        ],
+        [
+          51.5124,
+          -0.12
+        ]
+      ],
+      "distanceKm": 0.775,
+      "etaMin": 0.86,
+      "payload": "First aid kit",
+      "payloadSource": "inferred: SUPPLY_WEIGHTS config.py:63"
+    },
+    {
+      "id": "clinic-b",
+      "name": "Clinic B (emergency care facility)",
+      "lat": 51.5174,
+      "lon": -0.135,
+      "route": [
+        [
+          51.5074,
+          -0.1278
+        ],
+        [
+          51.5122,
+          -0.1328
+        ],
+        [
+          51.5174,
+          -0.135
+        ]
+      ],
+      "distanceKm": 1.234,
+      "etaMin": 1.37,
+      "payload": "Blood pack",
+      "payloadSource": "inferred: SUPPLY_WEIGHTS config.py:60",
+      "routeNote": "Straight line crosses 'Military Zone Alpha' (lat/lon polygon); detour waypoints synthesised for the replay. The project itself only applies a cost penalty (route_planner.py:84) and does not emit detour waypoints."
+    }
+  ],
+  "noFly": [
+    {
+      "name": "Military Zone Alpha",
+      "polygon": [
+        [
+          51.513,
+          -0.132
+        ],
+        [
+          51.516,
+          -0.132
+        ],
+        [
+          51.516,
+          -0.126
+        ],
+        [
+          51.513,
+          -0.126
+        ]
+      ]
+    },
+    {
+      "name": "Airport Exclusion",
+      "polygon": [
+        [
+          51.503,
+          -0.115
+        ],
+        [
+          51.506,
+          -0.115
+        ],
+        [
+          51.506,
+          -0.108
+        ],
+        [
+          51.503,
+          -0.108
+        ]
+      ]
+    }
+  ],
+  "bbox": [
+    51.503,
+    -0.135,
+    51.569,
+    0.0285
+  ]
+}

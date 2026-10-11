@@ -1,0 +1,74 @@
+.sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  /* Hidden once the close slide has finished, so it is also hidden to assistive tech and tests. */
+  visibility: hidden;
+  transition: visibility 0s linear var(--dur-sheet-close);
+}
+.sheet-root.is-open { pointer-events: auto; visibility: visible; transition-delay: 0s; }
+
+.sheet-scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(27, 26, 24, 0);
+  transition: background var(--dur-sheet-close) var(--ease-out);
+  cursor: default;
+}
+.sheet-root.is-open .sheet-scrim { background: rgba(27, 26, 24, 0.6); transition-duration: var(--dur-sheet-open); }
+
+.sheet {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: min(880px, calc(100% - 48px));
+  height: calc(100% - 40px);
+  transform: translate(-50%, 102%);
+  transition: transform var(--dur-sheet-close) var(--ease-out);
+  border-radius: var(--radius) var(--radius) 0 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+}
+.sheet-root.is-open .sheet { transform: translate(-50%, 0); transition-duration: var(--dur-sheet-open); }
+
+.sheet-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 24px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--grid);
+}
+.sheet-title { font-size: var(--fs-caption); line-height: var(--lh-caption); font-weight: 500; color: var(--ink-quiet); }
+.sheet-actions { display: flex; gap: 8px; }
+.sheet-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--target);
+  padding: 0 14px;
+  border: 1px solid var(--ink-quiet);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink);
+  font-size: var(--fs-control);
+  font-weight: 500;
+  cursor: pointer;
+}
+.sheet-btn:hover { background: rgba(30, 38, 51, 0.06); }
+.sheet-btn:disabled { opacity: 0.4; cursor: default; }
+
+.sheet-body { padding: 0 24px 48px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet, .sheet-scrim { transition: none; }
+}

@@ -1,0 +1,101 @@
+.controls {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 30;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+.ctl {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--target);
+  padding: 0 14px;
+  border: 1px solid rgba(236, 234, 228, 0.18);
+  border-radius: var(--radius);
+  background: rgba(27, 26, 24, 0.78);
+  color: var(--desk-text);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.ctl:hover { background: rgba(236, 234, 228, 0.1); border-color: rgba(236, 234, 228, 0.35); }
+.ctl:disabled { opacity: 0.4; cursor: default; }
+
+.ribbons {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  gap: 14px;
+}
+.ribbon {
+  min-height: var(--target);
+  padding: 10px 14px 8px;
+  border: 0;
+  border-radius: 0 0 4px 4px;
+  background: var(--cover);
+  color: var(--desk-text);
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.ribbon:hover, .ribbon.is-active { transform: translateY(4px); }
+
+.hint {
+  position: fixed;
+  left: 50%;
+  bottom: 84px;
+  transform: translateX(-50%);
+  z-index: 30;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  background: rgba(27, 26, 24, 0.78);
+  color: var(--desk-text-quiet);
+  font-size: 15px;
+  pointer-events: none;
+}
+
+.book-fallback-note {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 30;
+  font-size: 15px;
+  color: var(--desk-text-quiet);
+}
+
+.desk-name {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 30;
+  color: var(--desk-text);
+  pointer-events: none;
+}
+.desk-name h1 { font-size: 18px; font-weight: 600; line-height: 24px; }
+.desk-name p { font-size: 15px; color: var(--desk-text-quiet); line-height: 20px; }
+
+.back-cover-note {
+  position: fixed;
+  right: 24px;
+  bottom: 84px;
+  z-index: 30;
+  width: min(360px, calc(100% - 48px));
+  padding: 20px;
+  display: grid;
+  gap: 12px;
+}
+.back-cover-note .quiet { color: var(--ink-quiet); font-size: var(--fs-caption); line-height: var(--lh-caption); }
