@@ -9,6 +9,7 @@ import type { VersionDecision } from '@/app/version'
 import { isTestMode } from '@/app/version'
 import { CameraRig } from '@/book/CameraRig'
 import { Controls } from '@/book/Controls'
+import { BookStand } from '@/book/BookStand'
 import { ReadingSheet } from '@/book/ReadingSheet'
 import { SpreadA11y } from '@/book/SpreadA11y'
 import { Desk } from '@/book/desk/Desk'
@@ -33,6 +34,9 @@ export interface BookSiteProps {
   decision: VersionDecision
   onFallback: (reason: 'fallback' | 'simple') => void
 }
+
+const BOOK_POSITION = [0, MAT.thickness + 0.0005, 0] as const
+const BOOK_ROTATION = [-Math.PI / 2, 0, 0] as const
 
 const OBJECT_CHAPTERS: Partial<Record<DeskObjectId, Chapter['id']>> = {
   drone: 'dronemedic',
@@ -103,6 +107,19 @@ export default function BookSite({ decision, onFallback }: BookSiteProps) {
   }, [interaction, monitor])
 
   const routing = useBookRouting(store, controller, revealed)
+
+  // The real book replaces the desk's stand-in, so the "Open the logbook"
+  // keyboard button needs its handler here.
+  useEffect(
+    () =>
+      interaction.register('book', {
+        click: () => {
+          if (store.get().mode === 'desk') controller.open()
+        },
+        cancel: () => undefined,
+      }),
+    [interaction, store, controller],
+  )
 
   const openSheet = useCallback((anchor?: string) => {
     setSheetAnchor(anchor)
@@ -228,7 +245,14 @@ export default function BookSite({ decision, onFallback }: BookSiteProps) {
           book={false}
         />
         {assets.pages && (
-          <group position={[0, MAT.thickness + 0.0005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <BookStand
+            store={store}
+            controller={controller}
+            interaction={interaction}
+            armed={revealed}
+            position={BOOK_POSITION}
+            rotation={BOOK_ROTATION}
+          >
             <Book
               store={store}
               pages={assets.pages}
@@ -237,7 +261,7 @@ export default function BookSite({ decision, onFallback }: BookSiteProps) {
               pointer={input.pointer}
               onReady={onBookReady}
             />
-          </group>
+          </BookStand>
         )}
       </Canvas>
 

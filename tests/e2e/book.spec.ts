@@ -28,6 +28,20 @@ test.describe('3D book', () => {
     expect(errors).toEqual([])
   })
 
+  test('a click on the closed book opens it', async ({ page }) => {
+    await openDesk(page)
+    // The book's cover at the fixed test-mode camera, 1440 × 790.
+    await page.mouse.click(790, 440)
+    await expect(page.getByTestId('ctl-next')).toBeVisible()
+  })
+
+  test('the keyboard button for the logbook opens it', async ({ page }) => {
+    await openDesk(page)
+    await page.getByTestId('obj-book').focus()
+    await page.keyboard.press('Enter')
+    await expect(page.getByTestId('ctl-next')).toBeVisible()
+  })
+
   test('opens by Enter, turns by arrow keys and updates the address', async ({ page }) => {
     await openDesk(page)
     await page.keyboard.press('Enter')
