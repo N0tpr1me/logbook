@@ -2,7 +2,7 @@
 // adds a history entry; page turns and scrolling only update the address, so
 // Back returns to the previous jump. No router library.
 
-import { chapterById, contact, type Chapter, type ChapterId } from '@/content/content'
+import { chapterById, contact, person, type Chapter, type ChapterId } from '@/content/content'
 import { chapterDescription, chapterForPath, documentTitle } from './routes'
 
 export type RouteSource = 'load' | 'push' | 'replace' | 'popstate'
@@ -68,7 +68,8 @@ export function applyDocumentMeta(chapter: Chapter): void {
   setMeta('meta[property="og:title"]', 'content', title)
   setMeta('meta[property="og:description"]', 'content', description)
   if (contact.siteUrl) {
-    const href = `${contact.siteUrl.replace(/\/+$/, '')}${chapter.path === '/' ? '' : chapter.path}`
+    const site = contact.siteUrl.replace(/\/+$/, '')
+    const href = `${site}${chapter.path === '/' ? '' : chapter.path}`
     const existing = document.head.querySelector('link[rel="canonical"]')
     if (existing) existing.setAttribute('href', href)
     else {
@@ -77,7 +78,37 @@ export function applyDocumentMeta(chapter: Chapter): void {
       link.href = href
       document.head.appendChild(link)
     }
+    // Link previews need an absolute image address.
+    const image = document.head.querySelector('meta[property="og:image"]')
+    const imagePath = image?.getAttribute('content') ?? ''
+    if (image && imagePath.startsWith('/')) image.setAttribute('content', `${site}${imagePath}`)
+    setMeta('meta[property="og:url"]', 'content', href)
   }
+  applyStructuredData()
+}
+
+/**
+ * Structured data naming Zain, with the LinkedIn and GitHub links (plan:
+ * Launch, Search). Written once; the prerendered pages carry it in their HTML.
+ */
+function applyStructuredData(): void {
+  if (document.getElementById('structured-data')) return
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: person.name,
+    description: person.strapline,
+    url: contact.siteUrl || undefined,
+    // No email here: the contact page carries it as text, and scrapers read this block first.
+    sameAs: [contact.linkedin, contact.github].filter(Boolean),
+    alumniOf: { '@type': 'CollegeOrUniversity', name: 'University of West London' },
+    knowsAbout: ['Software engineering', 'Artificial intelligence', 'Financial markets'],
+  }
+  const script = document.createElement('script')
+  script.type = 'application/ld+json'
+  script.id = 'structured-data'
+  script.textContent = JSON.stringify(data)
+  document.head.appendChild(script)
 }
 
 /**
