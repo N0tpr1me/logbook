@@ -20,6 +20,15 @@ There is no music file here yet. Zain picks the track: calm, instrumental,
 website without credit; the file is never offered as a download). Save the
 licence page with the download date next to the file.
 
+Shortlist (Pixabay, checked 12 October 2026; most lo-fi jazz on Pixabay is now
+labelled AI generated, which the first two are not):
+
+| Track | Artist | Length | Notes |
+| --- | --- | --- | --- |
+| [Good Night - Lofi Cozy Chill Music](https://pixabay.com/music/beats-good-night-lofi-cozy-chill-music-160166/) | FASSounds | 2:27 | lo-fi beat, warm, the closest to the DroneMedic video's track |
+| [Soft Piano](https://pixabay.com/music/small-drama-soft-piano-589658/) | leberch | 2:32 | solo piano, quieter and more neutral |
+| [Jazz — Late Train](https://pixabay.com/music/smooth-jazz-jazz-late-train-594993/) | Ornave | 2:28 | lo-fi jazz piano; labelled AI generated |
+
 When it arrives:
 
 1. Encode it as AAC at about 96 kbps (roughly 2 MB for 2.5 minutes), for
