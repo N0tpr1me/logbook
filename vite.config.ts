@@ -10,13 +10,10 @@ export default defineConfig({
   },
   build: {
     target: 'es2022',
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules/three') || id.includes('@react-three') || id.includes('gsap')) return 'three'
-        },
-      },
-    },
+    // No manual chunking: the lazy import of BookSite in App.tsx is the split
+    // point, so three.js, R3F and GSAP land in the book's own chunks and the
+    // paper version's entry never imports them.
+    chunkSizeWarningLimit: 1400,
   },
   test: { include: ['tests/unit/**/*.test.ts'] },
   server: { port: 5173, strictPort: true },

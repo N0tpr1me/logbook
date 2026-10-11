@@ -101,6 +101,16 @@ async function writeRoute(route, html) {
   return file
 }
 
+/** One entry per chapter address, from the canonical links the app writes (VITE_SITE_URL at build time). */
+async function writeSitemap(urls) {
+  if (urls.length === 0) return
+  const today = new Date().toISOString().slice(0, 10)
+  const body = urls.map((u) => `  <url><loc>${u}</loc><lastmod>${today}</lastmod></url>`).join('\n')
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`
+  await writeFile(join(DIST, 'sitemap.xml'), xml, 'utf8')
+  console.log(`prerender: sitemap.xml with ${urls.length} addresses`)
+}
+
 async function main() {
   if (!existsSync(join(DIST, 'index.html'))) fail('dist/index.html is missing. Run `vite build` first.')
 
@@ -117,11 +127,15 @@ async function main() {
     browser = await chromium.launch()
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
     const routes = await readRoutes(page)
+    const canonicals = []
     for (const route of routes) {
       const { html, title } = await captureRoute(page, route)
       const file = await writeRoute(route, html)
+      const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1]
+      if (canonical) canonicals.push(canonical)
       console.log(`prerender: ${route.path} → ${file.replace(ROOT, '.')} (${title})`)
     }
+    await writeSitemap(canonicals)
   } catch (error) {
     console.error(`prerender: ${error instanceof Error ? error.stack ?? error.message : String(error)}`)
     process.exitCode = 1

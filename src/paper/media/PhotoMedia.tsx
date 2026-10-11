@@ -16,5 +16,6 @@ export function PhotoMedia({ src, alt }: PhotoMediaProps) {
       </div>
     )
   }
-  return <img className="photo" src={src} alt={alt} loading="lazy" decoding="async" onError={() => setMissing(true)} />
+  // The headshot is the first thing on the page (the largest contentful paint), so it is never lazy.
+  return <img className="photo" src={src} alt={alt} loading="eager" fetchPriority="high" decoding="async" onError={() => setMissing(true)} />
 }
