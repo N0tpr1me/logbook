@@ -8,8 +8,10 @@ import { useThree, type ThreeEvent } from '@react-three/fiber'
 import gsap from 'gsap'
 import type { Group } from 'three'
 import type { BookController } from '@/book/engine/motion'
-import type { DeskInteraction } from '@/book/desk/interaction'
-import type { BookStore } from '@/book/state'
+import { useDeskState, type DeskInteraction } from '@/book/desk/interaction'
+import { OBJECT_LABELS, PLACEMENTS } from '@/book/desk/layout'
+import { ObjectLabel } from '@/book/desk/ObjectLabel'
+import { useBookState, type BookStore } from '@/book/state'
 
 export interface BookStandProps {
   store: BookStore
@@ -34,6 +36,8 @@ export function BookStand({ store, controller, interaction, armed, position, rot
   const tween = useRef<gsap.core.Tween | null>(null)
   const base = position[1]
 
+  const closed = useBookState(store, (s) => s.mode === 'desk')
+  const labelled = useDeskState(interaction, (s) => s.hovered === 'book' || s.focused === 'book') && closed
   const isClosed = useCallback(() => store.get().mode === 'desk', [store])
   const instant = useCallback(() => store.get().reducedMotion || store.get().testMode, [store])
 
@@ -111,15 +115,19 @@ export function BookStand({ store, controller, interaction, armed, position, rot
   }
 
   return (
-    <group
-      ref={group}
-      position={[position[0], position[1], position[2]]}
-      rotation={[rotation[0], rotation[1], rotation[2]]}
-      onPointerOver={onPointerOver}
-      onPointerOut={onPointerOut}
-      onClick={onClick}
-    >
-      {children}
-    </group>
+    <>
+      <group
+        ref={group}
+        position={[position[0], position[1], position[2]]}
+        rotation={[rotation[0], rotation[1], rotation[2]]}
+        onPointerOver={onPointerOver}
+        onPointerOut={onPointerOut}
+        onClick={onClick}
+      >
+        {children}
+      </group>
+      {/* The same label as every other desk object, in desk space above the closed book. */}
+      <ObjectLabel text={OBJECT_LABELS.book} visible={labelled && armed} position={PLACEMENTS.book.labelOffset} />
+    </>
   )
 }
