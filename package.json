@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/prerender.mjs",
+    "build:vercel": "tsc -b && vite build",
     "build:pages": "node scripts/render-pages.mjs",
     "preview": "vite preview",
     "test": "vitest run",
