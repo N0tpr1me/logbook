@@ -18,7 +18,7 @@ jobs:
       VITE_GITHUB_URL: https://github.com/N0tpr1me
       VITE_SITE_URL: http://localhost:4173
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: 24
