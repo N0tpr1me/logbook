@@ -47,12 +47,9 @@ export function useKeyInput(controller: BookController, options: KeyInputOptions
 
   useEffect(() => {
     if (!enabled) return
-    let held: { key: string; timer: number } | null = null
-
-    const stopHolding = () => {
-      if (held) window.clearInterval(held.timer)
-      held = null
-    }
+    // A held key keeps turning, one page every HOLD_REPEAT seconds, paced by the
+    // keyboard's own repeat events rather than a timer: no key event, no turn.
+    let lastTurnAt = 0
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (isEditable(event.target) || event.metaKey || event.ctrlKey || event.altKey) return
@@ -61,35 +58,23 @@ export function useKeyInput(controller: BookController, options: KeyInputOptions
       // Enter and Space on a focused button or link activate that control, not the book.
       if (action.kind === 'open' && isActivatable(event.target)) return
       event.preventDefault()
-      if (event.repeat) return
       if (action.kind === 'escape') {
-        onEscape?.()
+        if (!event.repeat) onEscape?.()
         return
       }
       if (action.kind === 'open') {
-        controller.open()
+        if (!event.repeat) controller.open()
         return
       }
+      const now = performance.now()
+      if (event.repeat && now - lastTurnAt < HOLD_REPEAT * 1000) return
+      lastTurnAt = now
       controller.turn(action.direction)
-      stopHolding()
-      held = {
-        key: event.key,
-        timer: window.setInterval(() => controller.turn(action.direction), HOLD_REPEAT * 1000),
-      }
-    }
-
-    const onKeyUp = (event: KeyboardEvent) => {
-      if (held && held.key === event.key) stopHolding()
     }
 
     window.addEventListener('keydown', onKeyDown)
-    window.addEventListener('keyup', onKeyUp)
-    window.addEventListener('blur', stopHolding)
     return () => {
-      stopHolding()
       window.removeEventListener('keydown', onKeyDown)
-      window.removeEventListener('keyup', onKeyUp)
-      window.removeEventListener('blur', stopHolding)
     }
   }, [controller, enabled, onEscape])
 }

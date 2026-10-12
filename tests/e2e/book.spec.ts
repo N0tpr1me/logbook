@@ -18,7 +18,8 @@ async function openDesk(page: Page, url = BOOK) {
 test.describe('3D book', () => {
   // One software-rendered WebGL tab at a time: several in parallel starve the page's main thread.
   test.describe.configure({ mode: 'serial', timeout: 60_000 })
-  test.skip(({ viewport }) => (viewport?.width ?? 0) < 1200, 'the 3D book is for desktop windows')
+  // Phones get the paper version; the device flag survives the viewport override below.
+  test.skip(({ isMobile }) => isMobile === true, 'the 3D book is for desktop windows')
   test.use({ viewport: { width: 1440, height: 790 } })
 
   test('loads to the desk with no errors', async ({ page }) => {
