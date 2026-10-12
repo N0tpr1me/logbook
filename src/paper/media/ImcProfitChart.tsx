@@ -20,7 +20,9 @@ export function ImcProfitChart({ variant = 'live' }: ImcProfitChartProps) {
   const data = useMemo(() => imcReplay(), [])
   const box = useRef<HTMLDivElement>(null)
   const width = useElementWidth(box, 640)
-  const height = Math.round(Math.min(variant === 'print' ? 640 : 300, Math.max(200, width * 0.5)))
+  // A fixed on-screen height: the prerendered page and the hydrated page must not differ in height,
+  // or the chapters below shift (and the browser's scroll anchoring jumps the page).
+  const height = variant === 'print' ? 640 : 260
   const inView = useInView(box)
   const reduced = useReducedMotion()
   const drawn = variant === 'print' || reduced || inView
@@ -49,6 +51,8 @@ export function ImcProfitChart({ variant = 'live' }: ImcProfitChartProps) {
         viewBox={`0 0 ${width} ${height}`}
         width={width}
         height={height}
+        style={{ height }}
+        preserveAspectRatio="xMidYMid meet"
         role="img"
         aria-label={label}
       >

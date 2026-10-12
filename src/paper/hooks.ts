@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
 
 const REDUCED = '(prefers-reduced-motion: reduce)'
 
@@ -40,7 +40,8 @@ export function useInView<T extends Element>(ref: RefObject<T | null>, rootMargi
 /** The element's rendered width in CSS pixels, kept current with a ResizeObserver. */
 export function useElementWidth<T extends Element>(ref: RefObject<T | null>, fallback = 640): number {
   const [width, setWidth] = useState(fallback)
-  useEffect(() => {
+  // Measured before the first paint, so a hydrated page never shows the fallback width.
+  useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
     const measure = () => {

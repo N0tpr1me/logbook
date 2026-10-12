@@ -17,8 +17,13 @@ const devHarness = (name: string) => {
 const DevBook = devHarness('DevBook')
 const DevDesk = devHarness('DevDesk')
 
-export function App() {
-  const [decision, setDecision] = useState<VersionDecision>(() => decideVersion())
+export interface AppProps {
+  /** The version decision made once at startup (plan: Who sees which version). */
+  initialDecision?: VersionDecision
+}
+
+export function App({ initialDecision }: AppProps) {
+  const [decision, setDecision] = useState<VersionDecision>(() => initialDecision ?? decideVersion())
   const useBook = useMemo(() => features.book3d && decision.version === 'book', [decision])
   const dev = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('dev') : null
 

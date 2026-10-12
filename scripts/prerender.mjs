@@ -88,7 +88,14 @@ async function main() {
   const canonicals = []
   for (const route of server.routes) {
     const page = server.render(route.id)
-    const html = withInitialScroll(withBody(withHead(template, page), page.html), page)
+    // React emits resource hints (the headshot preload) at the start of the markup; they belong in the head.
+    const hints = []
+    const body = page.html.replace(/^(<link rel="preload"[^>]*>)+/, (m) => {
+      hints.push(m)
+      return ''
+    })
+    const headed = withHead(template, page).replace('</head>', `    ${hints.join('')}\n  </head>`)
+    const html = withInitialScroll(withBody(headed, body), page)
     const file = await writePage(page.path, html)
     if (page.canonical) canonicals.push(page.canonical)
     console.log(`prerender: ${page.path} → ${file.replace(ROOT, '.')} (${page.title})`)

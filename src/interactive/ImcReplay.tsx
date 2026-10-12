@@ -98,7 +98,8 @@ interface ReplayChartProps {
 function ReplayChart({ product, index, trades }: ReplayChartProps) {
   const box = useRef<HTMLDivElement>(null)
   const width = useElementWidth(box, 640)
-  const height = Math.round(Math.min(320, Math.max(220, width * 0.55)))
+  // Fixed on-screen height, so the prerendered and hydrated pages never differ in height.
+  const height = 280
   const MARGIN = width < 480 ? NARROW_MARGIN : WIDE_MARGIN
 
   const { x, yPrice, yPnl, priceTicks, pnlTicks } = useMemo(() => {
@@ -129,6 +130,8 @@ function ReplayChart({ product, index, trades }: ReplayChartProps) {
         viewBox={`0 0 ${width} ${height}`}
         width={width}
         height={height}
+        style={{ height }}
+        preserveAspectRatio="xMidYMid meet"
         role="img"
         aria-label={`${productName(product.name)}: mid price and running profit through the day, with ${trades.length} trades so far`}
       >
