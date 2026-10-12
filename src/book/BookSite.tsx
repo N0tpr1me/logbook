@@ -277,7 +277,10 @@ export default function BookSite({ decision, onFallback }: BookSiteProps) {
       {onBackCover && (
         <div className="back-cover-note paper" role="note">
           <p>{backCover.closing}</p>
-          <p className="quiet">{backCover.howBuilt}</p>
+          <p className="quiet">
+            {backCover.howBuilt}{' '}
+            <a href={backCover.sourceUrl} target="_blank" rel="noopener noreferrer">{backCover.sourceLabel}</a>
+          </p>
           <button type="button" className="sheet-btn" onClick={() => controller.close()}>Close book</button>
         </div>
       )}

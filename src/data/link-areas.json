@@ -1,6 +1,21 @@
 {
   "cover": [],
-  "back": [],
+  "back": [
+    {
+      "href": "https://github.com/N0tpr1me/logbook",
+      "x": 0.6649,
+      "y": 0.5176,
+      "w": 0.1716,
+      "h": 0.0229
+    },
+    {
+      "href": "https://github.com/N0tpr1me/logbook",
+      "x": 0.0801,
+      "y": 0.5449,
+      "w": 0.0783,
+      "h": 0.0229
+    }
+  ],
   "contents-left": [
     {
       "href": "mailto:mirzainali2007@gmail.com",

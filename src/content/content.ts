@@ -237,8 +237,9 @@ export const chapterByPath = (path: string): Chapter | undefined => {
 
 export const backCover = {
   closing: 'Thanks for reading. The next page is yours.',
-  howBuilt:
-    'Built with TypeScript, React, three.js and a custom page-turn shader, with Claude as a coding assistant. Source code on GitHub.',
+  howBuilt: 'Built with TypeScript, React, three.js and a custom page-turn shader, with Claude as a coding assistant.',
+  sourceLabel: 'Source code on GitHub',
+  sourceUrl: 'https://github.com/N0tpr1me/logbook',
 }
 
 export const cover = {

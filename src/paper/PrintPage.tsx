@@ -50,7 +50,7 @@ export function PrintPage({ pathname }: PrintPageProps) {
         <p className="print-back-closing">{backCover.closing}</p>
         <p className="print-back-built">
           <span className="print-back-label">How this site was built. </span>
-          {backCover.howBuilt}
+          {backCover.howBuilt} <a href={backCover.sourceUrl}>{backCover.sourceLabel}</a>
         </p>
       </PrintBox>
     )
