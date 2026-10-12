@@ -1,107 +1,76 @@
-// Prerender the paper version to static HTML (plan: The paper version), one
-// file per chapter address, so pages load fast, search engines can read them
-// and link previews work. Runs after `vite build` against `vite preview`.
+// Prerenders the paper version to static HTML, one file per chapter address,
+// plus sitemap.xml (plan: The paper version; Launch). Uses the server bundle
+// from `vite build --ssr`, so no browser is needed and the same step runs on
+// Vercel. Runs after `vite build`.
 //
-//   node scripts/prerender.mjs            → dist/index.html, dist/dronemedic/index.html, ...
-//
-// The app itself sets the title, description and link-preview tags for each
-// chapter (src/routing/navigate.ts); this script captures the result.
+//   node scripts/prerender.mjs   → dist/index.html, dist/dronemedic/index.html, …
 
-import { spawn } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { chromium } from '@playwright/test'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DIST = join(ROOT, 'dist')
-const PORT = 4173
-const BASE = `http://localhost:${PORT}`
-const SERVER_TIMEOUT_MS = 20_000
-const PAGE_TIMEOUT_MS = 30_000
+const SERVER_ENTRY = join(ROOT, 'dist-ssr', 'entry-server.js')
 
 function fail(message) {
   console.error(`prerender: ${message}`)
   process.exit(1)
 }
 
-/** Start `vite preview` and resolve once it answers, or reject with a clear message. */
-function startPreview() {
-  const bin = process.platform === 'win32' ? 'npx.cmd' : 'npx'
-  const child = spawn(bin, ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
-    cwd: ROOT,
-    stdio: ['ignore', 'pipe', 'pipe'],
-    shell: process.platform === 'win32',
-  })
-  let output = ''
-  child.stdout.on('data', (chunk) => {
-    output += chunk
-  })
-  child.stderr.on('data', (chunk) => {
-    output += chunk
-  })
-  const ready = new Promise((resolvePromise, reject) => {
-    const started = Date.now()
-    const poll = async () => {
-      if (child.exitCode !== null) {
-        reject(new Error(`vite preview exited with code ${child.exitCode}\n${output}`))
-        return
-      }
-      try {
-        const res = await fetch(`${BASE}/`)
-        if (res.ok) {
-          resolvePromise()
-          return
-        }
-      } catch {
-        // Not up yet.
-      }
-      if (Date.now() - started > SERVER_TIMEOUT_MS) {
-        reject(new Error(`vite preview did not answer on port ${PORT} within ${SERVER_TIMEOUT_MS / 1000}s\n${output}`))
-        return
-      }
-      setTimeout(poll, 250)
-    }
-    poll()
-  })
-  return { child, ready }
+const escapeAttr = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+const escapeText = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+
+/** Replace or add one tag in the head. */
+function setTag(head, pattern, replacement) {
+  return pattern.test(head) ? head.replace(pattern, replacement) : head.replace('</head>', `    ${replacement}\n  </head>`)
 }
 
-function stopPreview(child) {
-  if (child.exitCode === null) child.kill('SIGTERM')
+function withHead(template, page) {
+  const site = page.canonical ? page.canonical.replace(/\/(dronemedic|imc|ams|chandrayaan|about|contact)$/, '') : ''
+  let html = template
+  html = html.replace(/<title>[^<]*<\/title>/, `<title>${escapeText(page.title)}</title>`)
+  html = setTag(html, /<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${escapeAttr(page.description)}" />`)
+  html = setTag(html, /<meta property="og:title" content="[^"]*" \/>/, `<meta property="og:title" content="${escapeAttr(page.title)}" />`)
+  html = setTag(html, /<meta property="og:description" content="[^"]*" \/>/, `<meta property="og:description" content="${escapeAttr(page.description)}" />`)
+  if (page.canonical) {
+    html = setTag(html, /<meta property="og:url" content="[^"]*" \/>/, `<meta property="og:url" content="${escapeAttr(page.canonical)}" />`)
+    html = setTag(html, /<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${escapeAttr(page.canonical)}" />`)
+    html = html.replace(/<meta property="og:image" content="(\/[^"]*)" \/>/, (_, path) => `<meta property="og:image" content="${escapeAttr(site + path)}" />`)
+  }
+  const ld = `<script type="application/ld+json" id="structured-data">${page.structuredData.replace(/</g, '\\u003c')}</script>`
+  html = setTag(html, /<script type="application\/ld\+json" id="structured-data">[^<]*<\/script>/, ld)
+  return html
 }
 
-/** The chapter addresses, read from the chapter bar so the content file stays the single source. */
-async function readRoutes(page) {
-  await page.goto(`${BASE}/?simple=1`, { waitUntil: 'networkidle', timeout: PAGE_TIMEOUT_MS })
-  await page.waitForSelector('[data-paper-site]', { timeout: PAGE_TIMEOUT_MS })
-  const routes = await page.$$eval('a[data-chapter-link]', (links) =>
-    links.map((a) => ({ path: a.getAttribute('href') ?? '/', label: a.textContent?.trim() ?? '' })),
-  )
-  if (routes.length === 0) throw new Error('no chapter links found in the chapter bar')
-  return routes
+function withBody(html, rendered) {
+  // The instant shell inside #root is replaced by the rendered chapter pages.
+  // Vite hoists the module script into the head, so #root is the last element in the body.
+  const start = html.indexOf('<div id="root">')
+  const bodyEnd = html.indexOf('</body>', start)
+  const rootEnd = bodyEnd < 0 ? -1 : html.lastIndexOf('</div>', bodyEnd)
+  if (start < 0 || rootEnd < 0) fail('dist/index.html has no #root inside the body')
+  return `${html.slice(0, start)}<div id="root">${rendered}${html.slice(rootEnd)}`
 }
 
-async function captureRoute(page, route) {
-  await page.goto(`${BASE}${route.path}?simple=1`, { waitUntil: 'networkidle', timeout: PAGE_TIMEOUT_MS })
-  await page.waitForSelector('[data-paper-site]', { timeout: PAGE_TIMEOUT_MS })
-  await page.evaluate(() => document.fonts.ready)
-  return page.evaluate(() => {
-    const doc = document.documentElement
-    return { html: doc.outerHTML, title: document.title }
-  })
+/** A chapter address opens at its chapter before the first paint, so the page never jumps once scripts run. */
+function withInitialScroll(html, page) {
+  if (page.id === 'contents') return html
+  const snippet =
+    `<script>(function(){var e=document.getElementById(${JSON.stringify(page.id)});` +
+    `if(e){history.scrollRestoration='manual';e.scrollIntoView({block:'start'})}})()</script>`
+  return html.replace('</body>', `${snippet}\n  </body>`)
 }
 
-async function writeRoute(route, html) {
-  const dir = route.path === '/' ? DIST : join(DIST, route.path.replace(/^\/+/, ''))
+async function writePage(path, html) {
+  const dir = path === '/' ? DIST : join(DIST, path.replace(/^\/+/, ''))
   await mkdir(dir, { recursive: true })
   const file = join(dir, 'index.html')
-  await writeFile(file, `<!doctype html>\n${html}\n`, 'utf8')
+  await writeFile(file, html, 'utf8')
   return file
 }
 
-/** One entry per chapter address, from the canonical links the app writes (VITE_SITE_URL at build time). */
 async function writeSitemap(urls) {
   if (urls.length === 0) return
   const today = new Date().toISOString().slice(0, 10)
@@ -113,36 +82,18 @@ async function writeSitemap(urls) {
 
 async function main() {
   if (!existsSync(join(DIST, 'index.html'))) fail('dist/index.html is missing. Run `vite build` first.')
-
-  const { child, ready } = startPreview()
-  try {
-    await ready
-  } catch (error) {
-    stopPreview(child)
-    fail(error instanceof Error ? error.message : String(error))
+  if (!existsSync(SERVER_ENTRY)) fail('dist-ssr/entry-server.js is missing. Run `vite build --ssr src/entry-server.tsx --outDir dist-ssr` first.')
+  const template = await readFile(join(DIST, 'index.html'), 'utf8')
+  const server = await import(pathToFileURL(SERVER_ENTRY).href)
+  const canonicals = []
+  for (const route of server.routes) {
+    const page = server.render(route.id)
+    const html = withInitialScroll(withBody(withHead(template, page), page.html), page)
+    const file = await writePage(page.path, html)
+    if (page.canonical) canonicals.push(page.canonical)
+    console.log(`prerender: ${page.path} → ${file.replace(ROOT, '.')} (${page.title})`)
   }
-
-  let browser = null
-  try {
-    browser = await chromium.launch()
-    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
-    const routes = await readRoutes(page)
-    const canonicals = []
-    for (const route of routes) {
-      const { html, title } = await captureRoute(page, route)
-      const file = await writeRoute(route, html)
-      const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1]
-      if (canonical) canonicals.push(canonical)
-      console.log(`prerender: ${route.path} → ${file.replace(ROOT, '.')} (${title})`)
-    }
-    await writeSitemap(canonicals)
-  } catch (error) {
-    console.error(`prerender: ${error instanceof Error ? error.stack ?? error.message : String(error)}`)
-    process.exitCode = 1
-  } finally {
-    if (browser) await browser.close()
-    stopPreview(child)
-  }
+  await writeSitemap(canonicals)
 }
 
-main()
+main().catch((error) => fail(error instanceof Error ? (error.stack ?? error.message) : String(error)))

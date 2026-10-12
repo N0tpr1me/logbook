@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: true
+      # Placeholder contact details: the real ones are Vercel environment variables.
+      VITE_CONTACT_EMAIL: ci@example.com
+      VITE_CONTACT_PHONE: '+440000000000'
+      VITE_LINKEDIN_URL: https://www.linkedin.com/in/example
+      VITE_GITHUB_URL: https://github.com/N0tpr1me
+      VITE_SITE_URL: http://localhost:4173
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - name: Build, with the prerendered paper version
+        run: npm run build
+      - name: Browser tests
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7

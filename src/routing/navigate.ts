@@ -23,7 +23,18 @@ let current: RouteState | null = null
 const listeners = new Set<Listener>()
 let listening = false
 
+const isServer = typeof window === 'undefined'
+/** The chapter being rendered at build time, where there is no address bar. */
+let serverChapterId: ChapterId = 'contents'
+
+/** Build-time rendering: the chapter the next render is for. */
+export function setServerRoute(id: ChapterId): void {
+  serverChapterId = id
+  current = null
+}
+
 function readLocation(source: RouteSource): RouteState {
+  if (isServer) return { chapterId: serverChapterId, source }
   return { chapterId: chapterForPath(window.location.pathname).id, source }
 }
 
@@ -45,7 +56,7 @@ export function getRoute(): RouteState {
 
 export function subscribeRoute(listener: Listener): () => void {
   listeners.add(listener)
-  if (!listening) {
+  if (!listening && !isServer) {
     window.addEventListener('popstate', onPopState)
     listening = true
   }
@@ -91,9 +102,8 @@ export function applyDocumentMeta(chapter: Chapter): void {
  * Structured data naming Zain, with the LinkedIn and GitHub links (plan:
  * Launch, Search). Written once; the prerendered pages carry it in their HTML.
  */
-function applyStructuredData(): void {
-  if (document.getElementById('structured-data')) return
-  const data = {
+export function structuredData(): Record<string, unknown> {
+  return {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: person.name,
@@ -104,10 +114,14 @@ function applyStructuredData(): void {
     alumniOf: { '@type': 'CollegeOrUniversity', name: 'University of West London' },
     knowsAbout: ['Software engineering', 'Artificial intelligence', 'Financial markets'],
   }
+}
+
+function applyStructuredData(): void {
+  if (document.getElementById('structured-data')) return
   const script = document.createElement('script')
   script.type = 'application/ld+json'
   script.id = 'structured-data'
-  script.textContent = JSON.stringify(data)
+  script.textContent = JSON.stringify(structuredData())
   document.head.appendChild(script)
 }
 

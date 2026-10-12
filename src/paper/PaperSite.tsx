@@ -25,7 +25,10 @@ export interface PaperSiteProps {
  * under /__page/ render one page of the book instead.
  */
 export function PaperSite(props: PaperSiteProps) {
-  if (isPrintPath(window.location.pathname)) return <PrintPage pathname={window.location.pathname} />
+  // Build-time rendering has no address bar; print routes only exist in the browser.
+  if (typeof window !== 'undefined' && isPrintPath(window.location.pathname)) {
+    return <PrintPage pathname={window.location.pathname} />
+  }
   return <PaperBody {...props} />
 }
 
@@ -43,6 +46,9 @@ function PaperBody({ decision, onOpenBookAnyway, loadingBook = false }: PaperSit
     const el = document.getElementById(id)
     if (!el) return
     suppressUntil.current = performance.now() + (smooth ? SMOOTH_SCROLL_MS : INSTANT_SCROLL_MS)
+    // Already in place (the prerendered page scrolls before first paint): no second scroll.
+    const top = el.getBoundingClientRect().top
+    if (!smooth && Math.abs(top) < 2) return
     el.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' })
   }, [])
 
@@ -61,7 +67,8 @@ function PaperBody({ decision, onOpenBookAnyway, loadingBook = false }: PaperSit
     const { chapterId } = getRoute()
     const chapter = chapters.find((c) => c.id === chapterId) ?? chapters[0]
     applyDocumentMeta(chapter)
-    if (chapter.id !== 'contents') scrollToChapter(chapter.id, false)
+    // A prerendered chapter page has already scrolled before first paint; a second scroll would only stop LCP measurement.
+    if (chapter.id !== 'contents' && window.scrollY === 0) scrollToChapter(chapter.id, false)
   }, [scrollToChapter])
 
   // Back and Forward scroll to the chapter they return to.

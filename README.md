@@ -20,7 +20,7 @@ npm run dev                  # http://localhost:5173
 
 ```bash
 npm run build:pages   # renders the page images for the 3D book (needs the dev server or starts one)
-npm run build         # type-check, bundle, prerender the paper version to static HTML and sitemap.xml
+npm run build         # type-check, bundle, render the paper version to static HTML (no browser needed) and sitemap.xml
 npm run test          # unit tests (vitest)
 npm run test:e2e      # Playwright: paper version (desktop and iPhone 15), the 3D book in test mode, the version decision
 ```
